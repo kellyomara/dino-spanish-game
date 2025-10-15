@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dino Construction Spanish Game</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4, #45B7D1, #96CEB4, #FFEAA7);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
+            margin: 0;
+            padding: 10px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .game-container {
+            max-width: 900px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #FFFFFF;
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            text-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        .score {
+            font-size: 2.5em;
+            color: #FFFFFF;
+            margin-bottom: 20px;
+            font-weight: bold;
+            background: #FF6B6B;
+            padding: 15px 30px;
+            border-radius: 50px;
+            display: inline-block;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            border: 5px solid #FFFFFF;
+        }
+
+        .word-display {
+            background: linear-gradient(135deg, #FFFFFF, #F8F9FA);
+            border: 8px solid #FF6B6B;
+            border-radius: 30px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .spanish-word {
+            font-size: 4.5em;
+            color: #FF6B6B;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.2);
+        }
+
+        .english-word {
+            font-size: 2em;
+            color: #4ECDC4;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        .play-sound {
+            background: linear-gradient(135deg, #4ECDC4, #45B7D1);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 25px 50px;
+            font-size: 2em;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            border: 5px solid #FFFFFF;
+            min-width: 200px;
+            min-height: 80px;
+        }
+
+        .play-sound:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.4);
+        }
+
+        .play-sound:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-top: 30px;
+            padding: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .item-card {
+            background: linear-gradient(135deg, #FFFFFF, #F8F9FA);
+            border: 8px solid #96CEB4;
+            border-radius: 30px;
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .item-card:hover {
+            transform: scale(1.1) translateY(-10px);
+            border-color: #FFEAA7;
+            box-shadow: 0 16px 32px rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, #FFEAA7, #FFFFFF);
+        }
+
+        .item-card:active {
+            transform: scale(0.95);
+        }
+
+        .item-card.correct {
+            background: linear-gradient(135deg, #00FF7F, #90EE90);
+            border-color: #32CD32;
+            animation: correctBounce 0.8s ease;
+            box-shadow: 0 0 30px #32CD32;
+        }
+
+        .item-card.wrong {
+            background: linear-gradient(135deg, #FF69B4, #FFB6C1);
+            border-color: #FF1493;
+            animation: wrongShake 0.8s ease;
+            box-shadow: 0 0 30px #FF1493;
+        }
+
+        @keyframes correctBounce {
+            0%, 20%, 50%, 80%, 100% { transform: scale(1) translateY(0); }
+            40% { transform: scale(1.2) translateY(-20px); }
+            60% { transform: scale(1.1) translateY(-10px); }
+        }
+
+        @keyframes wrongShake {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            25% { transform: translateX(-15px) rotate(-5deg); }
+            75% { transform: translateX(15px) rotate(5deg); }
+        }
+
+        .item-emoji {
+            font-size: 6em;
+            margin-bottom: 15px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .item-name {
+            font-size: 1.8em;
+            color: #2E8B57;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .celebration {
+            font-size: 3em;
+            color: #FFD700;
+            margin: 20px 0;
+            animation: celebrationBounce 1s infinite;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        @keyframes celebrationBounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0) scale(1); }
+            40% { transform: translateY(-20px) scale(1.2); }
+            60% { transform: translateY(-10px) scale(1.1); }
+        }
+
+        .instructions {
+            background: linear-gradient(135deg, #FFEAA7, #FDCB6E);
+            border: 6px solid #E17055;
+            border-radius: 25px;
+            padding: 25px;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            color: #2D3436;
+            font-weight: bold;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+        }
+
+        /* Fun floating elements */
+        .floating-emoji {
+            position: fixed;
+            font-size: 2em;
+            pointer-events: none;
+            animation: floatAcross 10s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes floatAcross {
+            0% {
+                transform: translateX(-100px) translateY(0px);
+                opacity: 0.7;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(calc(100vw + 100px)) translateY(-50px);
+                opacity: 0.7;
+            }
+        }
+
+        /* Audio feedback indicator */
+        .audio-indicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 20px;
+            font-size: 2em;
+            z-index: 1000;
+            display: none;
+            animation: audioFeedback 0.5s ease;
+        }
+
+        @keyframes audioFeedback {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* Fireworks styles */
+        .firework {
+            position: fixed;
+            font-size: 4em;
+            pointer-events: none;
+            z-index: 1001;
+            animation: fireworkExplode 2s ease-out forwards;
+        }
+
+        @keyframes fireworkExplode {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.5) rotate(180deg);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(2) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive design for smaller screens */
+        @media (max-width: 600px) {
+            .spanish-word { font-size: 3em; }
+            .items-grid { 
+                grid-template-columns: 1fr 1fr 1fr; 
+                gap: 15px; 
+            }
+            .item-emoji { font-size: 4em; }
+            .play-sound { font-size: 1.5em; padding: 20px 40px; }
+        }
+
+        @media (max-width: 480px) {
+            .items-grid { 
+                grid-template-columns: 1fr; 
+                gap: 15px; 
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating background emojis -->
+    <div class="floating-emoji" style="top: 10%; animation-delay: 0s;">🦕</div>
+    <div class="floating-emoji" style="top: 30%; animation-delay: 3s;">🚜</div>
+    <div class="floating-emoji" style="top: 50%; animation-delay: 6s;">⭐</div>
+    <div class="floating-emoji" style="top: 70%; animation-delay: 9s;">🌈</div>
+
+    <!-- Audio feedback indicator -->
+    <div id="audio-indicator" class="audio-indicator"></div>
+
+    <div class="game-container">
+        <h1>🦕 Dino Construction Spanish! 🚜</h1>
+        
+        <div class="instructions">
+            👆 Click the picture! 👆
+            <br>¡Haz clic en la imagen! 🎯
+        </div>
+
+        <div class="score">⭐ <span id="score">0</span> ⭐</div>
+
+        <div class="word-display">
+            <div class="spanish-word" id="spanish-word">dinosaurio</div>
+            <div class="english-word" id="english-word">(dinosaur)</div>
+            <button class="play-sound" onclick="playSound()">🔊 LISTEN 🔊</button>
+        </div>
+
+        <div id="celebration" class="celebration" style="display: none;">
+            🎉 ¡Muy bien! Great job! 🎉
+        </div>
+
+        <div class="items-grid" id="items-grid">
+            <!-- Items will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        const vocabulary = [
+            { spanish: "dinosaurio", english: "dinosaur", emoji: "🦕" },
+            { spanish: "excavadora", english: "excavator", emoji: "🚜" },
+            { spanish: "camión", english: "truck", emoji: "🚛" },
+            { spanish: "casa", english: "house", emoji: "🏠" },
+            { spanish: "árbol", english: "tree", emoji: "🌳" },
+            { spanish: "sol", english: "sun", emoji: "☀️" },
+            { spanish: "agua", english: "water", emoji: "💧" },
+            { spanish: "pelota", english: "ball", emoji: "⚽" },
+            { spanish: "gato", english: "cat", emoji: "🐱" },
+            { spanish: "perro", english: "dog", emoji: "🐶" },
+            { spanish: "coche", english: "car", emoji: "🚗" },
+            { spanish: "flor", english: "flower", emoji: "🌸" }
+        ];
+
+        // Spanish praise phrases for correct answers
+        const praisePhrases = [
+            "¡Muy bien! ¡Excelente!",
+            "¡Perfecto! ¡Eres increíble!",
+            "¡Fantástico! ¡Bravo!",
+            "¡Súper! ¡Qué inteligente!",
+            "¡Genial! ¡Lo hiciste perfecto!",
+            "¡Maravilloso! ¡Eres un campeón!",
+            "¡Estupendo! ¡Muy bueno!",
+            "¡Fabuloso! ¡Qué bien!"
+        ];
+
+        // Spanish encouragement phrases for wrong answers
+        const encouragementPhrases = [
+            "¡Inténtalo otra vez! ¡Tú puedes!",
+            "¡Casi! ¡Prueba de nuevo!",
+            "¡No te preocupes! ¡Sigue intentando!",
+            "¡Muy bien! ¡Vamos a intentar otra vez!",
+            "¡Está bien! ¡Vamos a probar de nuevo!",
+            "¡Tranquilo! ¡La próxima vez!"
+        ];
+
+        let currentWord = 0;
+        let score = 0;
+        let gameActive = true;
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function showAudioIndicator(text, duration = 2000) {
+            const indicator = document.getElementById('audio-indicator');
+            indicator.textContent = text;
+            indicator.style.display = 'block';
+            setTimeout(() => {
+                indicator.style.display = 'none';
+            }, duration);
+        }
+
+        function speakSpanish(text, callback = null) {
+            if ('speechSynthesis' in window) {
+                speechSynthesis.cancel(); // Stop any current speech
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'es-ES';
+                utterance.rate = 0.7;
+                utterance.pitch = 1.1;
+                utterance.volume = 0.9;
+                
+                if (callback) {
+                    utterance.onend = callback;
+                }
+                
+                speechSynthesis.speak(utterance);
+                return utterance;
+            }
+            return null;
+        }
+
+        function createFireworks() {
+            const fireworkEmojis = ['🎆', '🎇', '✨', '🌟', '💥', '🎊', '🎉'];
+            
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const firework = document.createElement('div');
+                    firework.className = 'firework';
+                    firework.textContent = fireworkEmojis[Math.floor(Math.random() * fireworkEmojis.length)];
+                    firework.style.left = Math.random() * 100 + 'vw';
+                    firework.style.top = Math.random() * 100 + 'vh';
+                    
+                    document.body.appendChild(firework);
+                    
+                    setTimeout(() => {
+                        firework.remove();
+                    }, 2000);
+                }, i * 100);
+            }
+            
+            // Play special celebration sound
+            setTimeout(() => {
+                showAudioIndicator('🎆 ¡INCREÍBLE! ¡100 PUNTOS! 🎆', 4000);
+                speakSpanish('¡Increíble! ¡Cien puntos! ¡Eres fantástico!');
+            }, 500);
+        }
+
+        function playSound() {
+            // Make button animate when clicked
+            const button = document.querySelector('.play-sound');
+            button.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                button.style.transform = '';
+            }, 150);
+
+            const word = vocabulary[currentWord];
+            
+            // Show what we're saying
+            showAudioIndicator(`🔊 ${word.spanish}`, 3000);
+            
+            // Say the word clearly and give time for repetition
+            speakSpanish(word.spanish, () => {
+                // Brief pause, then ask to repeat
+                setTimeout(() => {
+                    showAudioIndicator(`🗣️ Repite: ${word.spanish}`, 5000);
+                    speakSpanish(`Repite: ${word.spanish}`);
+                    
+                    // Give them 5 seconds to repeat, then praise and reinforce
+                    setTimeout(() => {
+                        showAudioIndicator(`👍 ¡Muy bien!`, 2000);
+                        speakSpanish(`¡Muy bien!`, () => {
+                            // Say the word one final time for reinforcement
+                            setTimeout(() => {
+                                showAudioIndicator(`✨ ${word.spanish}`, 2000);
+                                speakSpanish(word.spanish, () => {
+                                    // Automatically move to next word after final reinforcement
+                                    setTimeout(() => {
+                                        nextWord();
+                                    }, 1000);
+                                });
+                            }, 500);
+                        });
+                    }, 5000); // Changed from 4000 to 5000 (5 seconds)
+                }, 800);
+            });
+        }
+
+        function displayWord() {
+            const word = vocabulary[currentWord];
+            document.getElementById('spanish-word').textContent = word.spanish;
+            document.getElementById('english-word').textContent = `(${word.english})`;
+            
+            // Create options (correct answer + 2 random wrong answers for total of 3)
+            const options = [word];
+            const otherWords = vocabulary.filter((_, index) => index !== currentWord);
+            const shuffledOthers = shuffleArray(otherWords);
+            
+            // Add only 2 wrong answers instead of 3
+            for (let i = 0; i < 2 && i < shuffledOthers.length; i++) {
+                options.push(shuffledOthers[i]);
+            }
+            
+            const shuffledOptions = shuffleArray(options);
+            
+            // Display options
+            const grid = document.getElementById('items-grid');
+            grid.innerHTML = '';
+            
+            shuffledOptions.forEach((option, index) => {
+                const card = document.createElement('div');
+                card.className = 'item-card';
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.innerHTML = `
+                    <div class="item-emoji">${option.emoji}</div>
+                    <div class="item-name">${option.english}</div>
+                `;
+                card.onclick = () => selectOption(option, card);
+                grid.appendChild(card);
+            });
+            
+            gameActive = true;
+            document.getElementById('celebration').style.display = 'none';
+        }
+
+        function selectOption(selectedOption, cardElement) {
+            if (!gameActive) return;
+            
+            gameActive = false;
+            const correctWord = vocabulary[currentWord];
+            
+            // Clear all card styles first
+            document.querySelectorAll('.item-card').forEach(card => {
+                card.classList.remove('correct', 'wrong');
+            });
+            
+            if (selectedOption.spanish === correctWord.spanish) {
+                // Correct answer
+                cardElement.classList.add('correct');
+                score += 10;
+                document.getElementById('score').textContent = score;
+                document.getElementById('celebration').style.display = 'block';
+                
+                // Play success sound and celebration
+                playSuccessSound();
+                createConfetti();
+                
+                // Check for 100 points milestone
+                if (score >= 100 && (score - 10) < 100) {
+                    setTimeout(() => {
+                        createFireworks();
+                    }, 1000);
+                }
+                
+                // Spanish praise with reinforcement - shorter timing
+                setTimeout(() => {
+                    const praise = praisePhrases[Math.floor(Math.random() * praisePhrases.length)];
+                    showAudioIndicator(`🎉 ${praise}`, 3000);
+                    
+                    speakSpanish(praise, () => {
+                        // Quick reinforcement of the correct word
+                        setTimeout(() => {
+                            showAudioIndicator(`✅ ¡Sí! ${correctWord.spanish}!`, 2000);
+                            speakSpanish(`¡Sí! ${correctWord.spanish}!`, () => {
+                                // Automatically move to next word after celebration
+                                setTimeout(() => {
+                                    nextWord();
+                                }, 1500);
+                            });
+                        }, 500);
+                    });
+                }, 800);
+            } else {
+                // Wrong answer
+                cardElement.classList.add('wrong');
+                
+                // Gentle encouragement in Spanish - shorter timing
+                setTimeout(() => {
+                    const encouragement = encouragementPhrases[Math.floor(Math.random() * encouragementPhrases.length)];
+                    showAudioIndicator(`💪 ${encouragement}`, 3000);
+                    
+                    speakSpanish(encouragement, () => {
+                        // Show correct answer quickly
+                        setTimeout(() => {
+                            document.querySelectorAll('.item-card').forEach(card => {
+                                const emoji = card.querySelector('.item-emoji').textContent;
+                                if (emoji === correctWord.emoji) {
+                                    card.classList.add('correct');
+                                }
+                            });
+                            
+                            showAudioIndicator(`👆 Es ${correctWord.spanish}`, 2000);
+                            speakSpanish(`Es ${correctWord.spanish}`, () => {
+                                // Automatically move to next word after showing correct answer
+                                setTimeout(() => {
+                                    nextWord();
+                                }, 1500);
+                            });
+                        }, 500);
+                    });
+                }, 800);
+            }
+        }
+
+        function playSuccessSound() {
+            // Enhanced success sound
+            if ('AudioContext' in window || 'webkitAudioContext' in window) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                const audioContext = new AudioContext();
+                
+                // Play a happy melody
+                const notes = [523, 659, 784, 1047]; // C, E, G, C
+                notes.forEach((freq, index) => {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(freq, audioContext.currentTime + index * 0.15);
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime + index * 0.15);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + index * 0.15 + 0.2);
+                    
+                    oscillator.start(audioContext.currentTime + index * 0.15);
+                    oscillator.stop(audioContext.currentTime + index * 0.15 + 0.2);
+                });
+            }
+        }
+
+        function createConfetti() {
+            // Create colorful confetti effect
+            const colors = ['🎉', '⭐', '🌟', '✨', '🎊'];
+            for (let i = 0; i < 15; i++) {
+                const confetti = document.createElement('div');
+                confetti.textContent = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.position = 'fixed';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = '-50px';
+                confetti.style.fontSize = '2em';
+                confetti.style.pointerEvents = 'none';
+                confetti.style.zIndex = '1000';
+                confetti.style.animation = `confettiFall ${2 + Math.random() * 2}s ease-out forwards`;
+                
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => {
+                    confetti.remove();
+                }, 4000);
+            }
+        }
+
+        // Add confetti animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes confettiFall {
+                to {
+                    transform: translateY(100vh) rotate(720deg);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        function nextWord() {
+            currentWord = (currentWord + 1) % vocabulary.length;
+            displayWord();
+            
+            // Brief welcome for new word, then start the game
+            setTimeout(() => {
+                const word = vocabulary[currentWord];
+                showAudioIndicator(`📚 Nueva palabra: ${word.spanish}`, 3000);
+                speakSpanish(`Nueva palabra: ${word.spanish}`);
+            }, 500);
+        }
+
+        // Initialize the game
+        displayWord();
+
+        // Shorter welcome message
+        setTimeout(() => {
+            showAudioIndicator('🎮 ¡Hola! ¡Vamos a jugar!', 3000);
+            speakSpanish('¡Hola! ¡Vamos a jugar!', () => {
+                setTimeout(() => {
+                    const word = vocabulary[currentWord];
+                    showAudioIndicator(`📚 ${word.spanish}`, 3000);
+                    speakSpanish(word.spanish);
+                }, 1000);
+            });
+        }, 1000);
+    </script>
+</body>
+</html>
